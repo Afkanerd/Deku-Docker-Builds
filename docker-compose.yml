@@ -4,6 +4,7 @@ services:
 
   cloud:
     restart: always
+    network_mode: "host"
 
     ports:
       - "${CLOUD_SERVER_PORT:?err}:${CLOUD_SERVER_PORT}"
