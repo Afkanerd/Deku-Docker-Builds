@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
 
-  deku-cloud:
+  cloud:
     restart: always
 
     ports:
