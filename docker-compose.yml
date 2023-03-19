@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+
+  deku-cloud:
+    restart: always
+
+    ports:
+      - "${CLOUD_SERVER_PORT:?err}:${CLOUD_SERVER_PORT}"
+      - "${CLOUD_SERVER_PORT_SSL:?err}:${CLOUD_SERVER_PORT_SSL}"
+
+    build: 
+      context: ./${PATH_CLOUD}
+      dockerfile: Dockerfile
+      target: production
+
+    volumes:
+      - "${SSL_FILE_PATH:?err}:${SSL_FILE_PATH}"
+
+    environment:
+      - HOST=${HOST:?err}
+      - PORT=${CLOUD_SERVER_PORT:?err}
+
+      - SHARED_KEY=${SHARED_KEY:?err}
+      - HASHING_SALT=${HASHING_SALT:?err}
+
+      - SSL_SERVER_NAME=${HOST:?err}
+      - SSL_PORT=${CLOUD_SERVER_PORT_SSL:?err}
+      - SSL_CERTIFICATE=${SSL_CERTIFICATE:?err}
+      - SSL_KEY=${SSL_KEY:?err}
+      - SSL_PEM=${SSL_PEM:?err}
+
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+
+      - RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY}
+      - ENABLE_RECAPTCHA=${ENABLE_RECAPTCHA:?err}
+      - ORIGINS=${ORIGINS:?err}
+
+      - RABBITMQ_SSL_ACTIVE=${RMQ_SSL}
+      - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
