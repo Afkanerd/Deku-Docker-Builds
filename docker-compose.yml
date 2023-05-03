@@ -22,8 +22,8 @@ services:
       - HOST=${HOST:?err}
       - PORT=${CLOUD_SERVER_PORT:?err}
 
-      - SHARED_KEY=${SHARED_KEY:?err}
-      - HASHING_SALT=${HASHING_SALT:?err}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:?err}
+      - HASH_SALT=${HASH_SALT:?err}
 
       - SSL_SERVER_NAME=${HOST:?err}
       - SSL_PORT=${CLOUD_SERVER_PORT_SSL:?err}
@@ -43,3 +43,30 @@ services:
       - RABBITMQ_SSL_ACTIVE=${RMQ_SSL}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+
+  web:
+    restart: always
+    depends_on:
+      - cloud
+    ports:
+      - "${WEB_PORT:?err}:80"
+      - "${WEB_PORT_SSL:?err}:443"
+    volumes:
+      - type: bind
+        source: ${SSL_CERTIFICATE}
+        target: /usr/local/apache2/conf/server.crt
+      - type: bind
+        source: ${SSL_KEY}
+        target: /usr/local/apache2/conf/server.key
+      - type: bind
+        source: ${SSL_PEM}
+        target: /usr/local/apache2/conf/server.pem
+    build: 
+      context: ./${PATH_WEB}
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - CLOUD_HOST="https://${HOST}:${CLOUD_SERVER_PORT_SSL}/{CLOUD_SERVER_VERSION}"
+        - SSL_CRT_FILE=${SSL_CERTIFICATE:?err}
+        - SSL_KEY_FILE=${SSL_KEY:?err}
+        - SSL_ENABLE=true

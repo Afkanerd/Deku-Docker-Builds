@@ -56,10 +56,10 @@ SSL_SERVER_NAME=
 HOST=
 
 # Encrytion key Used for encrypting the data.
-SHARED_KEY=
+ENCRYPTION_KEY=
 
 # Hashing salt used for the hashing the data
-HASHING_SALT=
+HASH_SALT=
 
 # MySQL creds
 MYSQL_HOST=
@@ -91,8 +91,8 @@ SSL_KEY= \
 SSL_PEM= \
 HOST= \
 ORIGINS= \
-SHARED_KEY= \
-HASHING_SALT= \
+ENCRYPTION_KEY= \
+HASH_SALT= \
 MYSQL_HOST= \
 MYSQL_USER= \
 MYSQL_PASSWORD= \
