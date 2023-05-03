@@ -2,7 +2,7 @@
 REPOS=repos
 
 CLOUD=deku-cloud
-WEB=web-cloud
+WEB=deku-web
 
 make: clone
 
