@@ -2,13 +2,13 @@ version: '3.9'
 
 services:
 
-  cloud:
+  back-end-rest:
     restart: always
     network_mode: "host"
 
     ports:
-      - "${CLOUD_SERVER_PORT:?err}:${CLOUD_SERVER_PORT}"
-      - "${CLOUD_SERVER_PORT_SSL:?err}:${CLOUD_SERVER_PORT_SSL}"
+      - "${BACK_END_REST_PORT:?err}:${BACK_END_REST_PORT}"
+      - "${BACK_END_REST_PORT_SSL:?err}:${BACK_END_REST_PORT_SSL}"
 
     build: 
       context: ./${PATH_CLOUD}
@@ -20,13 +20,13 @@ services:
 
     environment:
       - HOST=${HOST:?err}
-      - PORT=${CLOUD_SERVER_PORT:?err}
+      - PORT=${BACK_END_REST_PORT:?err}
 
       - ENCRYPTION_KEY=${ENCRYPTION_KEY:?err}
       - HASH_SALT=${HASH_SALT:?err}
 
       - SSL_SERVER_NAME=${HOST:?err}
-      - SSL_PORT=${CLOUD_SERVER_PORT_SSL:?err}
+      - SSL_PORT=${BACK_END_REST_PORT_SSL:?err}
       - SSL_CERTIFICATE=${SSL_CERTIFICATE:?err}
       - SSL_KEY=${SSL_KEY:?err}
       - SSL_PEM=${SSL_PEM:?err}
@@ -44,13 +44,13 @@ services:
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
-  web:
+  front-end-react:
     restart: always
     depends_on:
       - cloud
     ports:
-      - "${WEB_PORT:?err}:80"
-      - "${WEB_PORT_SSL:?err}:443"
+      - "${FRONT_END_REACT_PORT:?err}:80"
+      - "${FRONT_END_REACT_PORT_SSL:?err}:443"
     volumes:
       - type: bind
         source: ${SSL_CERTIFICATE}
@@ -62,11 +62,11 @@ services:
         source: ${SSL_PEM}
         target: /usr/local/apache2/conf/server.pem
     build: 
-      context: ./${PATH_WEB}
+      context: ./${PATH_FRONT_END_REACT}
       dockerfile: Dockerfile
       target: production
       args:
-        - CLOUD_HOST="https://${HOST}:${CLOUD_SERVER_PORT_SSL}/${CLOUD_SERVER_VERSION}"
+        - CLOUD_BE_REST_URL="https://${HOST}:${BACK_END_REST_PORT_SSL}/${BACK_END_REST_VERSION}"
         - SSL_CRT_FILE=${SSL_CERTIFICATE:?err}
         - SSL_KEY_FILE=${SSL_KEY:?err}
         - SSL_ENABLE=true
