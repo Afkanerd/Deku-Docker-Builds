@@ -11,7 +11,7 @@ services:
       - "${BACK_END_REST_PORT_SSL:?err}:${BACK_END_REST_PORT_SSL}"
 
     build: 
-      context: ./${PATH_CLOUD}
+      context: ./${PATH_BACK_END_REST}
       dockerfile: Dockerfile
       target: production
 
