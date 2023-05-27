@@ -1,6 +1,6 @@
-# Deku Docker Builds
+# Deku Cloud Docker Builds
 
-Build and deploy Afkanerd Deku microservices with docker
+Build and deploy Deku cloud microservices with docker
 
 <b>Configurations</b> Runnig the make command would handle creating the default
 necessary dependencies
