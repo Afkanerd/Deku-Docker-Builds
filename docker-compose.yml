@@ -47,7 +47,7 @@ services:
   front-end-react:
     restart: always
     depends_on:
-      - cloud
+      - back-end-rest
     ports:
       - "${FRONT_END_REACT_PORT:?err}:80"
       - "${FRONT_END_REACT_PORT_SSL:?err}:443"
