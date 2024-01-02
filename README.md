@@ -26,6 +26,7 @@ You can create a copy of the
 [startup-script.example](https://github.com/Afkanerd/Deku-Docker-Builds/blob/main/startup-script.example)
 for a .sh file in the root of the directory.
 
+> [!NOTE]
 > There is a .gitignore to ignore all .sh files.
 
 ###### Manually
@@ -79,6 +80,11 @@ RABBITMQ_DEFAULT_USER=
 # RabbitMQ password for management and user auth
 RABBITMQ_DEFAULT_PASS=
 
+# Cron schedule for database backups (e.g., "0 0 * * *" for daily backups)
+BACKUP_CRON_SCHEDULE=
+
+# Path to store the database backups
+DB_BACKUP_PATH=
 ```
 
 ###### manual_command
@@ -103,5 +109,7 @@ RECAPTCHA_SITE_KEY= \
 RMQ_SSL= \
 RABBITMQ_DEFAULT_USER= \
 RABBITMQ_DEFAULT_PASS= \
+BACKUP_CRON_SCHEDULE= \
+DB_BACKUP_PATH= \
 docker-compose --project-name deku up -d --build
 ```
