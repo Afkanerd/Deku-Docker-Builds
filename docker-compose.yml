@@ -86,7 +86,7 @@ services:
     network_mode: "host"
 
     volumes:
-      - ${VOLUME_PATH}/backup:/backup
+      - ${DB_BACKUP_PATH:-./backup}:/backup
 
     environment:
       - MYSQL_HOST=${MYSQL_HOST}
@@ -95,7 +95,7 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MAX_BACKUPS=15
       - INIT_BACKUP=1
-      - CRON_TIME=${CRON_TIME:?err}
+      - CRON_TIME=${BACKUP_CRON_SCHEDULE:?err}
       - GZIP_LEVEL=9
       # As of MySQL 8.0.21 this is needed
       - MYSQLDUMP_OPTS=--no-tablespaces
