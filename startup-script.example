@@ -18,4 +18,6 @@ RECAPTCHA_SITE_KEY= \
 RMQ_SSL= \
 RABBITMQ_DEFAULT_USER= \
 RABBITMQ_DEFAULT_PASS= \
+BACKUP_CRON_SCHEDULE= \
+DB_BACKUP_PATH= \
 docker compose --project-name deku-cloud up -d --build
