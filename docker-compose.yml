@@ -1,7 +1,6 @@
-version: '3.9'
+version: "3.9"
 
 services:
-
   back-end-rest:
     restart: always
     network_mode: "host"
@@ -10,7 +9,7 @@ services:
       - "${BACK_END_REST_PORT:?err}:${BACK_END_REST_PORT}"
       - "${BACK_END_REST_PORT_SSL:?err}:${BACK_END_REST_PORT_SSL}"
 
-    build: 
+    build:
       context: ./${PATH_BACK_END_REST}
       dockerfile: Dockerfile
       target: production
@@ -44,13 +43,19 @@ services:
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
+    env_file:
+      - .env
+
   front-end-react:
     restart: always
+
     depends_on:
       - back-end-rest
+
     ports:
       - "${FRONT_END_REACT_PORT:?err}:80"
       - "${FRONT_END_REACT_PORT_SSL:?err}:443"
+
     volumes:
       - type: bind
         source: ${SSL_CERTIFICATE}
@@ -61,7 +66,8 @@ services:
       - type: bind
         source: ${SSL_PEM}
         target: /usr/local/apache2/conf/server.pem
-    build: 
+
+    build:
       context: ./${PATH_FRONT_END_REACT}
       dockerfile: Dockerfile
       target: production
@@ -70,3 +76,26 @@ services:
         - SSL_CRT_FILE=${SSL_CERTIFICATE:?err}
         - SSL_KEY_FILE=${SSL_KEY:?err}
         - SSL_ENABLE=true
+
+    env_file:
+      - .env
+
+  cron-backup:
+    image: fradelg/mysql-cron-backup
+    restart: unless-stopped
+    network_mode: "host"
+
+    volumes:
+      - ${VOLUME_PATH}/backup:/backup
+
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASS=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MAX_BACKUPS=15
+      - INIT_BACKUP=1
+      - CRON_TIME=${CRON_TIME:?err}
+      - GZIP_LEVEL=9
+      # As of MySQL 8.0.21 this is needed
+      - MYSQLDUMP_OPTS=--no-tablespaces
