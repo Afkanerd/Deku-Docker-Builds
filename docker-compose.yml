@@ -1,9 +1,11 @@
-version: "3.9"
+volumes:
+  db-data:
+  rmq-data:
+
 
 services:
   back-end-rest:
     restart: always
-    network_mode: "host"
 
     ports:
       - "${BACK_END_REST_PORT:?err}:${BACK_END_REST_PORT}"
@@ -30,7 +32,7 @@ services:
       - SSL_KEY=${SSL_KEY:?err}
       - SSL_PEM=${SSL_PEM:?err}
 
-      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_HOST=mysql
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -80,21 +82,65 @@ services:
     env_file:
       - .env
 
+  rmq:
+    restart: always
+    hostname: rmq-server
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - "${SSL_FILE_PATH:?err}:/etc/ssl/certs/smswithoutborders/:ro"
+      - rmq-data:/var/lib/rabbitmq/mnesia/
+    build:
+      context: ./${PATH_RMQ}
+      dockerfile: Dockerfile
+    ports:
+      - "15671:15671"
+      - "15672:15672"
+      - "15692:15692"
+      - "5671:5671"
+      - "5672:5672"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:15672" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:-guest}
+
+  mysql:
+    restart: always
+    image: mariadb:10.5
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:?err}
+      MYSQL_HOST: 127.0.0.1
+    healthcheck:
+      test: "mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD:?err} -e \"show databases\""
+      interval: 1s
+      retries: 120
+
   cron-backup:
     image: fradelg/mysql-cron-backup
     restart: unless-stopped
-    network_mode: "host"
 
     volumes:
       - ${DB_BACKUP_PATH:-./backup}:/backup
 
     environment:
-      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_HOST=mysql
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASS=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MAX_BACKUPS=15
-      - INIT_BACKUP=1
+      - INIT_BACKUP=0
+      - EXIT_BACKUP=1
       - CRON_TIME=${BACKUP_CRON_SCHEDULE:?err}
       - GZIP_LEVEL=9
       # As of MySQL 8.0.21 this is needed
