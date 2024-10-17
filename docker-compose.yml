@@ -19,6 +19,9 @@ services:
       dockerfile: Dockerfile
       target: production
 
+    links:
+      - rmq:${HOST:?err}
+
     volumes:
       - "${SSL_FILE_PATH:?err}:${SSL_FILE_PATH}"
 
