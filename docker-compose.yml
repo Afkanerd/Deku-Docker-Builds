@@ -7,6 +7,9 @@ services:
   back-end-rest:
     restart: always
 
+    depends_on:
+      - mysql
+
     ports:
       - "${BACK_END_REST_PORT:?err}:${BACK_END_REST_PORT}"
       - "${BACK_END_REST_PORT_SSL:?err}:${BACK_END_REST_PORT_SSL}"
@@ -129,6 +132,9 @@ services:
   cron-backup:
     image: fradelg/mysql-cron-backup
     restart: unless-stopped
+
+    depends_on:
+      - mysql
 
     volumes:
       - ${DB_BACKUP_PATH:-./backup}:/backup
